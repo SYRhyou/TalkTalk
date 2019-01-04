@@ -14,7 +14,7 @@
             android:id="@+id/photoImageView"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@drawable/ic_face_black_24dp"
+            android:src="@drawable/zziri"
             />
 
         <LinearLayout

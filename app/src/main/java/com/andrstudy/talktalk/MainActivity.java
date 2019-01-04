@@ -18,6 +18,8 @@ import android.view.LayoutInflater;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,9 +28,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
+    public FirebaseRemoteConfig mFirebaseRemotConfig;
     private RecyclerView mMessageRecyclerView;
     private FirebaseRecyclerAdapter<ChatMessage, MessageViewHolder> mFirebaseAdapter;
     private FirebaseAuth mFirebaseAuth;
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     public DatabaseReference mFirebaseDatabaseReferenece;
     public static final String MESSAGES_CHILD = "messages";
+    public static final int REQUEST_INVITE = 1000;
 
     private Button send_message;
     public EditText mMessageEditText;
@@ -68,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this,this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .addApi(AppInvite.API)
                 .build();
 
         mFirebaseAuth = FirebaseAuth.getInstance();         //인증
@@ -115,7 +125,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
-    }
+
+        mFirebaseRemotConfig = FirebaseRemoteConfig.getInstance();
+
+        //TEST
+        FirebaseRemoteConfigSettings firebaseRemoteConfigSettings = new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(true).build();
+
+        Map<String , Object> defaultConfigMap = new HashMap<>();
+        defaultConfigMap.put("message_length", 10L);
+        mFirebaseRemotConfig.setConfigSettings(firebaseRemoteConfigSettings);
+        mFirebaseRemotConfig.setDefaults(defaultConfigMap);
+    }   //onCreate 종료
 
     @Override
     protected void onStart() {
